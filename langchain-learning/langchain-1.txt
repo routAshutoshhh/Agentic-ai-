@@ -1,0 +1,12 @@
+its a framework which helps in building generative application with attaching it to llms
+
+langhain can work with 
+= langsmith
+= langerver
+= chains
+= agents and retrieval 
+= LCEL 
+= LLM
+
+
+remember this picture
