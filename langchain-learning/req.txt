@@ -1,6 +1,8 @@
-langchain_ollamaLLM
+langchain_ollama
 langchain_core
 langchain_community
 langserve
 streamlit
 python-dotenv
+uvicorn
+fastapi
