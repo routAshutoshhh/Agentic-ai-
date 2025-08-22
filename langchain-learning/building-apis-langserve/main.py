@@ -5,6 +5,7 @@ from langchain_ollama import OllamaLLM
 #from langchain.chat_models import ChatOpenAI   #will only use to understand thsi usage and nnot having any api keys for this
 import uvicorn
 import os
+from fastapi.middleware.cors import CORSMiddleware
 
 #STEP1 - LOADING KEYS AS VARIABLES USING CONFIG FILE
 from config import  OLLAMA_API_KEY
@@ -29,6 +30,17 @@ app = FastAPI(
 )
 
 
+
+# Set all CORS enabled origins
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["*"],
+)
+
 #STEP3 - DEFINING THE MODELS with the langchain 
 MODEL_OLLAMA = OllamaLLM(model="phi:latest")
 #MODEL_OPENAI = ChatOpenAI() # since its empty then there will be showing error
@@ -45,15 +57,35 @@ chain_Ollama = prompt_ollama|MODEL_OLLAMA
 
 
 #STEP-optional - creating raw endpoints by passing models in the langserve
-add_routes(app,MODEL_OLLAMA,path="/ollama/raw")
+#add_routes(app,MODEL_OLLAMA,path="/ollama/raw" )
 #add_routes(app,MODEL_OPENAI,path="/openai/essayO/raw")
 
+
+#lets create some test endpoints
+@app.get("/")
+def get_root():
+    return {"message": "Welcome to the LangChain API"}
+
+@app.get("/test")
+def get_root_test():
+    return {"message": "Welcome to the LangChain API with test"}
+
+
+
+
+#lets create a test-route here for teesting the model ollama 
+@app.get("/test-ollama")
+def test_ollama():
+    response = MODEL_OLLAMA.invoke("hello , how are you feeling my lovely model")
+    return {"sucess" : "SUCCESS" , "response": response}
+
+
+
+print("addding the route for essay with langserve")
 #STEP6 - DEFINING THE API ENDPOINTS WITH THE LANGSERVE
 #for Ollama
-add_routes(app,chain_Ollama,path="/ollama/essay")
-
+add_routes(app,prompt_ollama|MODEL_OLLAMA,path="/ollama/essay")
 #for OpenAI
-#add_routes(app,chain_OpenAI,path="/openai/essayO")- not required - 
-
-
+#add_routes(app,chain_OpenAI,path="/openai/essayO")
+print("langserve route added ")
 ##ust run -  uvicorn main:app --reload --host 127.0.0.1 --port 3000
